@@ -165,6 +165,10 @@ func (s *Sink) formatString(data string, level LogLevel) string {
 	return strings.ReplaceAll(out, "\\t", levelString(level))
 }
 
+func (l LogLevel) String() string {
+	return levelString(l)
+}
+
 func levelString(level LogLevel) string {
 	switch level {
 	case QUIET:
