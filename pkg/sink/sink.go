@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"runtime"
 	"strings"
 	"time"
 )
@@ -83,10 +84,9 @@ func (s *Sink) FlushSinks() {
 
 // Sets the logging format string to be used, by default this is empty
 // \d => outputs the datetime
-// \t => writes the log type
+// \t => writes the log level as a string
+// \c => writes the caller name
 // * => log data
-// example
-// [\d] [\t] *
 func (s *Sink) SetFormat(f string) error {
 	s.format = f
 	return nil
@@ -164,11 +164,27 @@ func (s *Sink) formatString(data string, level LogLevel) string {
 
 	out := strings.ReplaceAll(s.format, "*", data)
 	out = strings.ReplaceAll(out, "\\d", time.Now().Format("2006-01-02 15:04:05"))
+
+	out = strings.ReplaceAll(out, "\\c", callerName(2))
 	return strings.ReplaceAll(out, "\\t", levelString(level))
 }
 
 func (l LogLevel) String() string {
 	return levelString(l)
+}
+
+func callerName(skip int) string {
+	pc, _, _, ok := runtime.Caller(skip)
+	if !ok {
+		return "unknown"
+	}
+
+	fn := runtime.FuncForPC(pc)
+	if fn == nil {
+		return "unknown"
+	}
+
+	return fn.Name()
 }
 
 func levelString(level LogLevel) string {

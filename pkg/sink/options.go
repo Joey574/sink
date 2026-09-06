@@ -1,6 +1,9 @@
 package sink
 
-import "os"
+import (
+	"io"
+	"os"
+)
 
 func EnableStdOut() func(*Sink) {
 	return func(s *Sink) {
@@ -19,5 +22,11 @@ func SetFormat(format string) func(*Sink) {
 		if err := s.SetFormat(format); err != nil {
 			panic(err)
 		}
+	}
+}
+
+func PushSinks(w ...io.Writer) func(*Sink) {
+	return func(s *Sink) {
+		s.PushSinks(w...)
 	}
 }
