@@ -7,3 +7,17 @@ func EnableStdOut() func(*Sink) {
 		s.PushSinks(os.Stdout)
 	}
 }
+
+func SetLogLevel(level LogLevel) func(*Sink) {
+	return func(s *Sink) {
+		s.SetLogLevel(level)
+	}
+}
+
+func SetFormat(format string) func(*Sink) {
+	return func(s *Sink) {
+		if err := s.SetFormat(format); err != nil {
+			panic(err)
+		}
+	}
+}

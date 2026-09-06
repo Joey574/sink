@@ -1,6 +1,7 @@
 package sink
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -20,6 +21,7 @@ const (
 )
 
 type Store interface {
+	WriteWithCtx(context.Context, LogLevel, []byte) error
 	Write(LogLevel, []byte) error
 }
 
