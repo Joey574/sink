@@ -19,7 +19,7 @@ type RingBuffer struct {
 
 func New(capacity int) *RingBuffer {
 	if capacity == 0 {
-		panic("size must be non 0")
+		panic("size must be greater than 0")
 	}
 
 	return &RingBuffer{
@@ -29,6 +29,21 @@ func New(capacity int) *RingBuffer {
 		end:      0,
 		version:  0,
 		buf:      make([]byte, capacity),
+	}
+}
+
+func NewBuffer(buf []byte) *RingBuffer {
+	if len(buf) == 0 {
+		panic("size must be greater than 0")
+	}
+
+	return &RingBuffer{
+		capacity: len(buf),
+		size:     0,
+		start:    0,
+		end:      0,
+		version:  0,
+		buf:      buf,
 	}
 }
 
