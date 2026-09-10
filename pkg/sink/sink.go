@@ -93,48 +93,48 @@ func (s *Sink) SetFormat(f string) error {
 
 // Writes the set of bytes to the sink, exits early in event of error and returns it
 func (s *Sink) Write(l LogLevel, p []byte) error {
-	return s.writeInternal(l, p, 1)
+	return s.writeInternal(l, p)
 }
 
 func (s *Sink) WriteString(l LogLevel, w string) error {
-	return s.writeInternal(l, []byte(w), 1)
+	return s.writeInternal(l, []byte(w))
 }
 
 func (s *Sink) Printf(l LogLevel, format string, a ...any) error {
-	return s.writeInternal(l, fmt.Appendf(nil, format, a...), 1)
+	return s.writeInternal(l, fmt.Appendf(nil, format, a...))
 }
 
 func (s *Sink) Println(l LogLevel, a ...any) error {
-	return s.writeInternal(l, fmt.Appendln(nil, a...), 1)
+	return s.writeInternal(l, fmt.Appendln(nil, a...))
 }
 
 func (s *Sink) Print(l LogLevel, a ...any) error {
-	return s.writeInternal(l, fmt.Append(nil, a...), 1)
+	return s.writeInternal(l, fmt.Append(nil, a...))
 }
 
 func (s *Sink) Fatal(v ...any) {
-	s.writeInternal(QUIET, fmt.Append(nil, v...), 1)
+	s.writeInternal(QUIET, fmt.Append(nil, v...))
 	os.Exit(1)
 }
 
 func (s *Sink) Fatalf(format string, a ...any) {
-	s.writeInternal(QUIET, fmt.Appendf(nil, format, a...), 1)
+	s.writeInternal(QUIET, fmt.Appendf(nil, format, a...))
 	os.Exit(1)
 }
 
 func (s *Sink) Fatalln(v ...any) {
-	s.writeInternal(QUIET, fmt.Appendln(nil, v...), 1)
+	s.writeInternal(QUIET, fmt.Appendln(nil, v...))
 	os.Exit(1)
 }
 
-func (s *Sink) writeInternal(l LogLevel, p []byte, depth int) error {
+func (s *Sink) writeInternal(l LogLevel, p []byte) error {
 	_ = s.writeToStores(l, p)
 
 	if l > s.level {
 		return nil
 	}
 
-	data := s.formatString(string(p), l, depth)
+	data := s.formatString(string(p), l)
 	return s.writeToSinks([]byte(data))
 }
 
@@ -160,16 +160,16 @@ func (s *Sink) writeToStores(level LogLevel, p []byte) error {
 	return nil
 }
 
-func (s *Sink) formatString(data string, level LogLevel, depth int) string {
+func (s *Sink) formatString(data string, level LogLevel) string {
 	if s.format == "" {
 		return data
 	}
 
 	out := strings.ReplaceAll(s.format, "*", data)
-	out = strings.ReplaceAll(out, "\\d", time.Now().Format("2006-01-02 15:04:05"))
+	out = strings.ReplaceAll(out, `\d`, time.Now().Format("2006-01-02 15:04:05"))
 
-	out = strings.ReplaceAll(out, "\\c", callerName(2+depth))
-	return strings.ReplaceAll(out, "\\t", levelString(level))
+	out = strings.ReplaceAll(out, `\c`, extCallerName())
+	return strings.ReplaceAll(out, `\t`, levelString(level))
 }
 
 func (l LogLevel) String() string {

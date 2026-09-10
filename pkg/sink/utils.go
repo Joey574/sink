@@ -2,20 +2,57 @@ package sink
 
 import (
 	"runtime"
+	"strings"
 )
 
-func callerName(skip int) string {
-	pc, _, _, ok := runtime.Caller(skip)
-	if !ok {
+func extCallerName() string {
+	pcs := make([]uintptr, 32)
+
+	n := runtime.Callers(2, pcs)
+	if n == 0 {
 		return "unknown"
 	}
 
-	fn := runtime.FuncForPC(pc)
-	if fn == nil {
-		return "unknown"
+	frames := runtime.CallersFrames(pcs[:n])
+	var internalPkg string
+
+	for {
+		frame, more := frames.Next()
+		if frame.Function == "" {
+			if !more {
+				break
+			}
+			continue
+		}
+
+		pkg := pkgName(frame.Function)
+
+		if internalPkg == "" {
+			internalPkg = pkg
+		} else if pkg != internalPkg {
+			return frame.Function
+		}
+
+		if !more {
+			break
+		}
 	}
 
-	return fn.Name()
+	return "unknown"
+}
+
+func pkgName(funcName string) string {
+	lastSlash := strings.LastIndexByte(funcName, '/')
+	if lastSlash < 0 {
+		lastSlash = 0
+	}
+
+	dot := strings.IndexByte(funcName[lastSlash:], '.')
+	if dot < 0 {
+		return funcName
+	}
+
+	return funcName[:lastSlash+dot]
 }
 
 func levelString(level LogLevel) string {
