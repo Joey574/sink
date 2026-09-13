@@ -65,6 +65,11 @@ func (s *Sink) PushSinks(w ...io.Writer) {
 	s.sinks = append(s.sinks, w...)
 }
 
+// Append stores
+func (s *Sink) PushStores(w ...Store) {
+	s.stores = append(s.stores, w...)
+}
+
 // Pops the first sinks and returns it
 func (s *Sink) PopSinks() io.Writer {
 	if len(s.sinks) == 0 {
@@ -76,9 +81,25 @@ func (s *Sink) PopSinks() io.Writer {
 	return snk
 }
 
+// Pops the first store and returns it
+func (s *Sink) PopStores() Store {
+	if len(s.stores) == 0 {
+		return nil
+	}
+
+	st := s.stores[0]
+	s.stores = s.stores[1:]
+	return st
+}
+
 // Sets sinks to nil
 func (s *Sink) FlushSinks() {
 	s.sinks = nil
+}
+
+// Sets stores to nil
+func (s *Sink) FlushStores() {
+	s.stores = nil
 }
 
 // Sets the logging format string to be used, by default this is empty
@@ -167,7 +188,6 @@ func (s *Sink) formatString(data string, level LogLevel) string {
 
 	out := strings.ReplaceAll(s.format, "*", data)
 	out = strings.ReplaceAll(out, `\d`, time.Now().Format("2006-01-02 15:04:05"))
-
 	out = strings.ReplaceAll(out, `\c`, extCallerName())
 	return strings.ReplaceAll(out, `\t`, levelString(level))
 }

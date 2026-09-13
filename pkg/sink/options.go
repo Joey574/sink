@@ -30,3 +30,9 @@ func PushSinks(w ...io.Writer) func(*Sink) {
 		s.PushSinks(w...)
 	}
 }
+
+func PushStores(w ...Store) func(*Sink) {
+	return func(s *Sink) {
+		s.PushStores(w...)
+	}
+}
