@@ -11,6 +11,14 @@ type Store interface {
 }
 
 type Sink interface {
+	SetParent(Sink)
+	Parent() Sink
+
+	SetName(string)
+	Name() string
+
+	CallStack() string
+
 	IncLogLevel()
 	DecLogLevel()
 	SetLogLevel(LogLevel)

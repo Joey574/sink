@@ -49,3 +49,17 @@ func ThreadSafe() func(Sink) Sink {
 		}
 	}
 }
+
+func SetParent(p Sink) func(Sink) Sink {
+	return func(s Sink) Sink {
+		s.SetParent(p)
+		return s
+	}
+}
+
+func SetName(n string) func(Sink) Sink {
+	return func(s Sink) Sink {
+		s.SetName(n)
+		return s
+	}
+}

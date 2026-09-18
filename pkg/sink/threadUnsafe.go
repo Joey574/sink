@@ -13,6 +13,33 @@ type threadUnsafeSink struct {
 	format string
 	sinks  []io.Writer
 	stores []Store
+
+	parent Sink
+	name   string
+}
+
+func (s *threadUnsafeSink) SetParent(p Sink) {
+	s.parent = p
+}
+
+func (s *threadUnsafeSink) Parent() Sink {
+	return s.parent
+}
+
+func (s *threadUnsafeSink) SetName(n string) {
+	s.name = n
+}
+
+func (s *threadUnsafeSink) Name() string {
+	return s.name
+}
+
+func (s *threadUnsafeSink) CallStack() string {
+	if s.parent == nil {
+		return s.name
+	}
+
+	return fmt.Sprintf("%s.%s", s.parent.CallStack(), s.name)
 }
 
 // Increments log level by 1 up to max of TRACE
@@ -76,6 +103,7 @@ func (s *threadUnsafeSink) FlushStores() {
 // \d => outputs the datetime
 // \t => writes the log level as a string
 // \c => writes the caller name
+// \s => writes the sink call stack
 // * => log data
 func (s *threadUnsafeSink) SetFormat(f string) error {
 	s.format = f
@@ -157,5 +185,6 @@ func (s *threadUnsafeSink) formatString(data string, level LogLevel) string {
 	out := strings.ReplaceAll(s.format, "*", data)
 	out = strings.ReplaceAll(out, `\d`, time.Now().Format("2006-01-02 15:04:05"))
 	out = strings.ReplaceAll(out, `\c`, extCallerName())
+	out = strings.ReplaceAll(out, `\s`, s.CallStack())
 	return strings.ReplaceAll(out, `\t`, levelString(level))
 }

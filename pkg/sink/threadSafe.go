@@ -10,6 +10,36 @@ type threadSafeSink struct {
 	mx  sync.Mutex
 }
 
+func (s *threadSafeSink) SetParent(p Sink) {
+	s.mx.Lock()
+	defer s.mx.Unlock()
+	s.snk.SetParent(p)
+}
+
+func (s *threadSafeSink) Parent() Sink {
+	s.mx.Lock()
+	defer s.mx.Unlock()
+	return s.snk.Parent()
+}
+
+func (s *threadSafeSink) SetName(n string) {
+	s.mx.Lock()
+	defer s.mx.Unlock()
+	s.snk.SetName(n)
+}
+
+func (s *threadSafeSink) Name() string {
+	s.mx.Lock()
+	defer s.mx.Unlock()
+	return s.snk.Name()
+}
+
+func (s *threadSafeSink) CallStack() string {
+	s.mx.Lock()
+	defer s.mx.Unlock()
+	return s.snk.CallStack()
+}
+
 // Increments log level by 1 up to max of TRACE
 func (s *threadSafeSink) IncLogLevel() {
 	s.mx.Lock()
