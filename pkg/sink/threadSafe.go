@@ -64,21 +64,21 @@ func (s *threadSafeSink) DecLogLevel() {
 func (s *threadSafeSink) SetLogLevel(l LogLevel) {
 	s.mx.Lock()
 	defer s.mx.Unlock()
-	s.SetLogLevel(l)
+	s.snk.SetLogLevel(l)
 }
 
 // Appends writers to the set of sinks
 func (s *threadSafeSink) PushSinks(w ...io.Writer) {
 	s.mx.Lock()
 	defer s.mx.Unlock()
-	s.PushSinks(w...)
+	s.snk.PushSinks(w...)
 }
 
 // Append stores
 func (s *threadSafeSink) PushStores(w ...Store) {
 	s.mx.Lock()
 	defer s.mx.Unlock()
-	s.PushStores(w...)
+	s.snk.PushStores(w...)
 }
 
 // Pops the first sinks and returns it
@@ -99,14 +99,14 @@ func (s *threadSafeSink) PopStore() Store {
 func (s *threadSafeSink) FlushSinks() {
 	s.mx.Lock()
 	defer s.mx.Unlock()
-	s.FlushSinks()
+	s.snk.FlushSinks()
 }
 
 // Sets stores to nil
 func (s *threadSafeSink) FlushStores() {
 	s.mx.Lock()
 	defer s.mx.Unlock()
-	s.FlushStores()
+	s.snk.FlushStores()
 }
 
 // Sets the logging format string to be used, by default this is empty
