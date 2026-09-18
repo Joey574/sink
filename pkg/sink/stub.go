@@ -1,5 +1,7 @@
 package sink
 
+import "fmt"
+
 type stub struct {
 	name string
 	Sink
@@ -19,4 +21,8 @@ func (s *stub) SetName(n string) {
 
 func (s *stub) Name() string {
 	return s.name
+}
+
+func (s *stub) CallStack() string {
+	return fmt.Sprintf("%s.%s", s.Sink.CallStack(), s.name)
 }
