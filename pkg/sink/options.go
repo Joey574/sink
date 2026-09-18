@@ -71,3 +71,11 @@ func Clone(c Sink) func(Sink) Sink {
 		return s
 	}
 }
+
+func Wrap(c Sink) func(Sink) Sink {
+	return func(_ Sink) Sink {
+		return &stub{
+			Sink: c,
+		}
+	}
+}

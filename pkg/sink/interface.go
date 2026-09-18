@@ -10,10 +10,6 @@ type Store interface {
 	Write(LogLevel, []byte) error
 }
 
-type Stub interface {
-	Parent() Sink
-}
-
 type Sink interface {
 	Clone() Sink
 

@@ -24,6 +24,9 @@ func (s *threadUnsafeSink) Clone() Sink {
 		format: s.format,
 		parent: s.parent,
 		name:   s.name,
+
+		sinks:  make([]io.Writer, 0, len(s.sinks)),
+		stores: make([]Store, 0, len(s.stores)),
 	}
 
 	copy(t.sinks, s.sinks)
