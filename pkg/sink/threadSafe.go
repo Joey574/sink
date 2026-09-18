@@ -10,6 +10,12 @@ type threadSafeSink struct {
 	mx  sync.Mutex
 }
 
+func (s *threadSafeSink) Clone() Sink {
+	s.mx.Lock()
+	defer s.mx.Unlock()
+	return s.snk.Clone()
+}
+
 func (s *threadSafeSink) SetParent(p Sink) {
 	s.mx.Lock()
 	defer s.mx.Unlock()

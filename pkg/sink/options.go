@@ -63,3 +63,11 @@ func SetName(n string) func(Sink) Sink {
 		return s
 	}
 }
+
+// This argument is location dependent, it will overwrite all other options passed before it
+func Clone(c Sink) func(Sink) Sink {
+	return func(s Sink) Sink {
+		s = c.Clone()
+		return s
+	}
+}

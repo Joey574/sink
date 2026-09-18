@@ -11,6 +11,8 @@ type Store interface {
 }
 
 type Sink interface {
+	Clone() Sink
+
 	SetParent(Sink)
 	Parent() Sink
 

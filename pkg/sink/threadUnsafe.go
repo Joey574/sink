@@ -18,6 +18,19 @@ type threadUnsafeSink struct {
 	name   string
 }
 
+func (s *threadUnsafeSink) Clone() Sink {
+	t := &threadUnsafeSink{
+		level:  s.level,
+		format: s.format,
+		parent: s.parent,
+		name:   s.name,
+	}
+
+	copy(t.sinks, s.sinks)
+	copy(t.stores, s.stores)
+	return t
+}
+
 func (s *threadUnsafeSink) SetParent(p Sink) {
 	s.parent = p
 }
