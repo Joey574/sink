@@ -46,4 +46,6 @@ type Sink interface {
 	Fatal(...any)
 	Fatalln(...any)
 	Fatalf(string, ...any)
+
+	emit(LogLevel, string, []byte) error
 }

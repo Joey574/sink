@@ -168,3 +168,9 @@ func (s *threadSafeSink) Fatalf(format string, a ...any) {
 	defer s.mx.Unlock()
 	s.snk.Fatalf(format, a...)
 }
+
+func (s *threadSafeSink) emit(l LogLevel, suffix string, p []byte) error {
+	s.mx.Lock()
+	defer s.mx.Unlock()
+	return s.snk.emit(l, suffix, p)
+}

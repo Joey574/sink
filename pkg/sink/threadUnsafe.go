@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"slices"
 	"strings"
 	"time"
 )
@@ -19,19 +20,15 @@ type threadUnsafeSink struct {
 }
 
 func (s *threadUnsafeSink) Clone() Sink {
-	t := &threadUnsafeSink{
+	return &threadUnsafeSink{
 		level:  s.level,
 		format: s.format,
 		parent: s.parent,
 		name:   s.name,
 
-		sinks:  make([]io.Writer, 0, len(s.sinks)),
-		stores: make([]Store, 0, len(s.stores)),
+		sinks:  slices.Clone(s.sinks),
+		stores: slices.Clone(s.stores),
 	}
-
-	copy(t.sinks, s.sinks)
-	copy(t.stores, s.stores)
-	return t
 }
 
 func (s *threadUnsafeSink) SetParent(p Sink) {
@@ -163,13 +160,22 @@ func (s *threadUnsafeSink) Fatalf(format string, a ...any) {
 }
 
 func (s *threadUnsafeSink) writeLocked(l LogLevel, p []byte) error {
+	return s.emit(l, "", p)
+}
+
+func (s *threadUnsafeSink) emit(l LogLevel, suffix string, p []byte) error {
 	_ = s.writeToStores(l, p)
 
 	if l > s.level {
 		return nil
 	}
 
-	data := s.formatString(string(p), l)
+	stack := s.CallStack()
+	if suffix != "" {
+		stack += "." + suffix
+	}
+
+	data := s.formatString(string(p), l, stack)
 	return s.writeToSinks([]byte(data))
 }
 
@@ -193,7 +199,7 @@ func (s *threadUnsafeSink) writeToStores(level LogLevel, p []byte) error {
 	return nil
 }
 
-func (s *threadUnsafeSink) formatString(data string, level LogLevel) string {
+func (s *threadUnsafeSink) formatString(data string, level LogLevel, stack string) string {
 	if s.format == "" {
 		return data
 	}
@@ -201,6 +207,6 @@ func (s *threadUnsafeSink) formatString(data string, level LogLevel) string {
 	out := strings.ReplaceAll(s.format, "*", data)
 	out = strings.ReplaceAll(out, `\d`, time.Now().Format("2006-01-02 15:04:05"))
 	out = strings.ReplaceAll(out, `\c`, extCallerName())
-	out = strings.ReplaceAll(out, `\s`, s.CallStack())
+	out = strings.ReplaceAll(out, `\s`, stack)
 	return strings.ReplaceAll(out, `\t`, levelString(level))
 }
