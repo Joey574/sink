@@ -6,7 +6,7 @@ import (
 )
 
 type Store interface {
-	WriteWithCtx(context.Context, LogLevel, []byte) error
+	WriteContext(context.Context, LogLevel, []byte) error
 	Write(LogLevel, []byte) error
 }
 
